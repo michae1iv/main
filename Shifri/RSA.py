@@ -5,7 +5,10 @@ from prime_number_gen import PrimeNumberGenerator
 class RSA:
     def __init__(self, key_min_size):
         generator = PrimeNumberGenerator(key_min_size)
-        self.p, self.q = generator.generate_p_q()
+        #self.p, self.q = generator.generate_p_q()
+        self.p = generator.generate_prime()
+        self.q = generator.generate_prime()
+        print(self.p, self.q)
         self.m = self.p * self.q
         self.eiller = (self.p - 1) * (self.q - 1)
         self.public_key = []
@@ -31,7 +34,7 @@ class RSA:
                 self.public_key = [e, self.m]
                 break
         self.private_key = ReverseEuclideanAlgorithm(self.eiller, e)[1] % self.eiller
-
+        print(self.private_key * e % self.eiller)
         print('закрытый ключ: ', self.private_key)
         print('открытый ключ: ', self.public_key)
 

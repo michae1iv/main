@@ -3,6 +3,9 @@ import sys
 from sympy import isprime, primerange
 import random
 
+from prime_number_gen import PrimeNumberGenerator
+
+
 def generate_large_prime():
     while True:
         num = int('1' + ''.join(random.choice('0123456789') for _ in range(9999)))
@@ -12,7 +15,7 @@ def generate_large_prime():
 
 
 if __name__ == "__main__":
-    sys.set_int_max_str_digits(10001)
-    prime_number = generate_large_prime()
-    print("Простое число из 1000 знаков:")
-    print(prime_number)
+    sys.set_int_max_str_digits(99999999)
+    generator = PrimeNumberGenerator(10000)
+    number = generator.generate_prime()
+    print(number)

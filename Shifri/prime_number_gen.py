@@ -1,5 +1,7 @@
 import random
 from math_functions import miller_rabin
+from gmpy2 import mpz, f_div, mpfr
+
 
 class PrimeNumberGenerator:
     def __init__(self, size):
@@ -26,20 +28,44 @@ class PrimeNumberGenerator:
         return result
 
     def generate_single_prime(self):
-        f = self.low_simple_numbers[random.randrange(len(self.low_simple_numbers) - 1)]
-        while len(str(f)) <= self.key_length:
-            r = random.randrange(4 * f + 4)
-            n = f * r + 1
+        q = self.low_simple_numbers[random.randrange(len(self.low_simple_numbers) - 1)]
+        n = 0
+        while len(str(q)) <= self.key_length:
+            r = 2 * random.randrange(2 * q + 2)
+            n = q * r + 1
             if miller_rabin(n):
-                for _ in range(10000):
-                    a = random.randrange(2, r*100)
+                for _ in range(1000000000):
+                    a = random.randrange(2, n * 100)
                     if pow(a, n - 1, n) == 1 and pow(a, r, n) != 1:
-                        f = n
+                        q = n
                         break
-        return f
+        return q
 
     def generate_prime(self):
-        while True:
-            num = int('1' + ''.join(random.choice('0123456789') for _ in range(self.key_length - 1)))
-            if miller_rabin(num):
-                return num
+        start_prime = self.low_simple_numbers[random.randrange(len(self.low_simple_numbers) - 1)]
+        dimension = self.key_length
+        current_prime = mpz(start_prime)
+        current_dimension = len(str(current_prime))
+        while current_dimension < dimension:
+            current_dimension = dimension
+            repeat_flag = True
+            u = 0
+            n = 0
+            p = current_prime
+            while True:
+                if repeat_flag:
+                    repeat_flag = False
+                    n = f_div(mpz(10 ** (current_dimension - 1)), mpz(current_prime)) + \
+                        f_div(mpz(10 ** (current_dimension - 1) * mpfr(random.random())),
+                              mpz(current_prime))
+                    n = n + 1 if n.is_odd() else n
+                    u = 0
+                p = (n + u) * current_prime + 1
+                if pow(2, p - 1, p) == 1 and pow(2, n + u, p) != 1:
+                    repeat_flag = True
+                    break
+                else:
+                    u += 2
+            current_prime = p
+            current_dimension = (len(str(current_prime)))
+        return current_prime
